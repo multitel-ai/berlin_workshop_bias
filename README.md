@@ -13,10 +13,10 @@ Website : (website: https://stereoset.mit.edu/)
 * Comment `en-core-web-sm==2.2.5` in requirements.txt with a #  
 
 * Install required packages :  
-`pip install -U pip setuptools wheel  
-pip install spacy==2.2.4  
-python -m spacy download en_core_web_sm  
-cd StereoSet && pip install -r requirements.txt`  
+`pip install -U pip setuptools wheel`  
+`pip install spacy==2.2.4`  
+`python -m spacy download en_core_web_sm`  
+`cd StereoSet && pip install -r requirements.txt`  
 
 * Test if it works for a base model :  
 `cd code`  
