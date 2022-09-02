@@ -7,8 +7,8 @@ Website : (website: https://stereoset.mit.edu/)
 * Clone StereoSet github repository `git clone https://github.com/moinnadeem/StereoSet.git`
 
 * Optional: Create and activate a virtual environment
-`virtualenv stereo`
-`source stereo/bin/activate`
+`virtualenv stereo`  
+`source stereo/bin/activate`  
 
 * Comment `en-core-web-sm==2.2.5` in requirements.txt with a #
 
