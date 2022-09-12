@@ -250,6 +250,7 @@ class Learner(object):
         print(f'{step} model saved ...')
 
 
+
     def save_ours(self, step, best=None):
         if best:
             model_path = os.path.join(self.result_dir, "best_model_l.th")
@@ -678,9 +679,10 @@ class Learner(object):
                     hook_fn.remove()
 
                     z_l = z_l[0]
-
+            self.bloss = None
             if step > args.curr_step:
-                z = torch.cat((z_l.detach(), z_b.detach()), dim=1).to(self.device)
+                #z = torch.cat((z_l.detach(), z_b.detach()), dim=1).to(self.device)
+                z = torch.cat((z_l, z_b), dim=1).to(self.device)
                 self.optimizer_d.zero_grad()
                 batch_features = data.view(-1, 3*28*28).to(self.device)
                 pred_dec = self.decoder(z)
@@ -688,8 +690,9 @@ class Learner(object):
 
                 loss_d = self.decoder_criterion(pred_dec, batch_features)
 
-                loss_d.backward()
-                self.optimizer_d.step()
+                #loss_d.backward()
+                #self.optimizer_d.step()
+
             else:
                 loss_d = 0
 
@@ -762,7 +765,8 @@ class Learner(object):
 
             loss_dis  = loss_dis_conflict.mean() + args.lambda_dis_align * loss_dis_align.mean()                # Eq.2 L_dis
             loss_swap = loss_swap_conflict.mean() + args.lambda_swap_align * loss_swap_align.mean()             # Eq.3 L_swap
-            loss = loss_dis + lambda_swap * loss_swap                                                           # Eq.4 Total objective
+            loss = loss_dis + lambda_swap * loss_swap + loss_d                                                          # Eq.4 Total objective
+            #loss = loss_dis + lambda_swap * loss_swap
             #print(data.shape)
 
 
@@ -776,6 +780,7 @@ class Learner(object):
 
             self.optimizer_l.step()
             self.optimizer_b.step()
+            self.optimizer_d.step()
 
 
             if step >= args.curr_step and args.use_lr_decay:
