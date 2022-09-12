@@ -11,6 +11,8 @@ from models.simple_cls import get_simple_classifier
 from models.binary_classifier import get_resnet18_classifier
 
 
+
+
 class Trainer(BaseTrainer):
     def __init__(self, args):
         super(Trainer, self).__init__(args)
@@ -21,17 +23,18 @@ class Trainer(BaseTrainer):
                                               pin_memory=args.pin_memory,
                                               persistent_workers=args.num_workers > 0)
 
-    def _setup_models_mlp(self):
-        self.bias_discover_net = get_simple_classifier(
-            arch=self.args.arch).to(self.device)
-        self.classifier = get_simple_classifier(
-            arch=self.args.arch).to(self.device)
-
     def _setup_models(self):
+        if self.args.arch=='mlp':
+            self.bias_discover_net = get_simple_classifier(
+            arch=self.args.arch).to(self.device)
+            self.classifier = get_simple_classifier(
+            arch=self.args.arch).to(self.device)
+        else:
             self.bias_discover_net = get_resnet18_classifier(
-                num_classes=self.num_classes).to(self.device)
+                num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
             self.classifier = get_resnet18_classifier(
-                num_classes=self.num_classes).to(self.device)
+                num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
+         
 
     def _setup_criterion(self):
         self.criterion = torch.nn.CrossEntropyLoss(reduction='none')
@@ -45,11 +48,12 @@ class Trainer(BaseTrainer):
     def _setup_method_name_and_default_name(self):
         args.method_name = "debian"
         self.default_name = (
-            "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}".format(
+            "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}_{}".format(              
                 args.batch_size,
                 args.weight_decay,
                 args.lr,
                 args.dset_name,
+                args.percent
             )
         )
 
@@ -66,7 +70,7 @@ class Trainer(BaseTrainer):
             # ============= start: train classifier net ================
             self.bias_discover_net.eval()
             self.classifier.train()
-            img, label = main_data
+            img, label,id_data1 = main_data
             label = label[:, self.target_attr_index]
             img = img.to(self.device)
             label = label.to(self.device)
@@ -119,7 +123,7 @@ class Trainer(BaseTrainer):
             # ============= end: train classifier net ================
 
             # ============= start: train bias discover net ================
-            img, label = second_data
+            img, label,id_data2 = second_data
             label = label[:, self.target_attr_index]
             img = img.to(self.device)
             label = label.to(self.device)

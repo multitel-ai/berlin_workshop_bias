@@ -6,19 +6,21 @@ from common.utils import initialize_seeds
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dset_dir', default='data/cmnist/5pct', type=str)
+    parser.add_argument('--data_dir', default='data', type=str)
     parser.add_argument('--dset_name', type=str, default='cmnist')
     parser.add_argument('--epoch', default=100, type=int)
     parser.add_argument('--batch_size', default=256, type=int)
     parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--num_workers', type=int, default=0)
+    parser.add_argument('--num_workers', type=int, default=16)
     parser.add_argument('--name', type=str)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--lambda_penalty', type=float, default=1.0)
-    parser.add_argument('--pin_memory', action='store_true')
+    parser.add_argument('--pin_memory', action='store_true',default=False)
     parser.add_argument('--amp', action='store_true')
     parser.add_argument('--arch', type=str, default='mlp')
+    parser.add_argument('--pretrained', type=bool, default=False)
     parser.add_argument('--weight_decay', type=float, default=1e-4)
+    parser.add_argument("--percent", help="percentage of conflict", default= "0.5pct", type=str)
     return parser
 
 

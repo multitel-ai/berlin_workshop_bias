@@ -2,7 +2,7 @@
 This code is inspired form https://github.com/alinlab/LfF/blob/master/train_vanilla.py
 '''
 
-import os
+import os, sys
 import pickle
 from tqdm import tqdm
 from datetime import datetime
@@ -22,10 +22,10 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     from torch.utils.tensorboard import SummaryWriter
 
-from data.utils import get_dataset, IdxDataset, ZippedDataset
 from models.models import get_model, GeneralizedCELoss
 from .utils import MultiDimAverageMeter, EMA
-
+sys.path.insert(0,'..')
+from datasets import get_dataset
 
 
 def train(
@@ -54,18 +54,18 @@ def train(
     print(dataset_tag)
 
     #Reading training and validation data
-    train_dataset = get_dataset(
+    train_dataset, num_classes = get_dataset(
         dataset_tag,
-        data_dir=data_dir,
+        root=data_dir,
         dataset_split="train",
-        transform_split="train",
+        # transform_split="train",
         percent=percent
     )
-    valid_dataset = get_dataset(
+    valid_dataset , num_classes= get_dataset(
         dataset_tag,
-        data_dir=data_dir,
+        root = data_dir,
         dataset_split="valid",
-        transform_split="valid",
+        #transform_split="valid",
         percent= percent                             
     )
 
@@ -73,7 +73,6 @@ def train(
 
     domain of biaises (just for evaluation since the method does not assume and existing bias)
     '''
-
     train_target_attr = []
     for data in train_dataset.data:
         train_target_attr.append(int(data.split('_')[-2]))
@@ -81,11 +80,10 @@ def train(
 
     attr_dims = []
     attr_dims.append(torch.max(train_target_attr).item() + 1)
-    num_classes = attr_dims[0] 
         
     #IdxDataset just add the first element of idx before x
-    train_dataset = IdxDataset(train_dataset)
-    valid_dataset = IdxDataset(valid_dataset)    
+    # train_dataset = IdxDataset(train_dataset)
+    # valid_dataset = IdxDataset(valid_dataset)    
 
     # make loader    
     train_loader = DataLoader(
@@ -122,7 +120,7 @@ def train(
         acc = 0
         total_correct, total_num = 0, 0
         #attrwise_acc_meter = MultiDimAverageMeter(attr_dims)
-        for index, data, attr, _ in tqdm(data_loader, leave=False):
+        for data, attr, path_data in tqdm(data_loader, leave=False):
             label = attr[:, target_attr_idx]
             data = data.to(device)
             attr = attr.to(device)
@@ -161,10 +159,10 @@ def train(
 
     for step in tqdm(range(main_num_steps)):
         try:
-            index, data, attr, _ = next(train_iter)
+            data, attr, path_data = next(train_iter)
         except:
             train_iter = iter(train_loader)
-            index, data, attr, _ = next(train_iter)
+            data, attr, path_data = next(train_iter)
 
         data = data.to(device)
         attr = attr.to(device)
