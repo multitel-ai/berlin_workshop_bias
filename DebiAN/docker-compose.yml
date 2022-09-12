@@ -1,0 +1,17 @@
+version: "3"
+services:
+  dev_env:
+    container_name: dev_jupyter_nvidia2
+    build:
+      context: .
+      dockerfile: dockerfile
+    shm_size: 16gb
+    volumes:
+      - .:/App
+    ports:
+      - 8888:8888
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PYTHONPATH=/App
+    runtime: nvidia
+    entrypoint: jupyter notebook --port=8888 --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.password='sha1:dc3069f3f0f6:76fb024e41e73de38fca44a1c9819f995c061cfa'
