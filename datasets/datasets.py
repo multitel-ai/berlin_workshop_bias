@@ -12,7 +12,6 @@ class cmnistDataset(Dataset):
         self.root = root
         self.transform = transform
 
-
         if split=='train':
             self.align = glob(os.path.join(self.root, 'align', '*', '*'))
             self.conflict = glob(os.path.join(self.root, 'conflict', '*', '*'))
@@ -22,6 +21,7 @@ class cmnistDataset(Dataset):
         elif split=='test':
             self.data = glob(os.path.join(root, '../test',"*","*"))
         else: "Not 'train', 'valid', or 'test' !"
+
 
     def __len__(self,):
         return len(self.data)
@@ -67,7 +67,7 @@ datasets_dict = {
     }
 
 
-def get_dataset(name, root, percent):
+def get_dataset(name, root, percent, dataset_split = "train"):
     """
     Return the Dataset by name
     :param name: name of the dataset to return
@@ -82,7 +82,6 @@ def get_dataset(name, root, percent):
     if name=='cmnist':
         dataPath = os.path.join(root, name)
         path = os.path.join(dataPath, percent)
-        dataset = cur_dict["class_fn"](path, split=cur_dict['split'], transform=cur_dict["transform"])
-
+        dataset = cur_dict["class_fn"](path, split= dataset_split, transform=cur_dict["transform"])
 
     return dataset, cur_dict["n_output"]
