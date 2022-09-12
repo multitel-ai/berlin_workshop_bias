@@ -5,16 +5,28 @@ from datasets.cmnist import CMNIST
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from common.utils import MultiDimAverageMeter
+from data.utils import get_dataset
 
 
 class BaseTrainer:
     def __init__(self, args):
         self.args = args
+        train_dataset=get_dataset(args.dset_name,
+        data_dir=args.data_dir,
+        dataset_split="train",
+        transform_split="train",
+        percent=args.percent)
 
-        train_dataset = CMNIST(
-            args.dset_dir, 'train')
-        test_dataset = CMNIST(
-            args.dset_dir, 'valid')
+        test_dataset=get_dataset(args.dset_name,
+        data_dir=args.data_dir,
+        dataset_split="valid",
+        transform_split="valid",
+        percent=args.percent)
+
+        #train_dataset = CMNIST(
+        #    args.data_dir, 'train',percent=args.percent)
+        #test_dataset = CMNIST(
+        #    args.data_dir, 'valid',percent=args.percent)
 
         
         self.attr_dims = [10,10]
@@ -111,7 +123,7 @@ class BaseTrainer:
                     desc='[{}/{}] evaluating on ({})...'.format(epoch,
                                                                 self.total_epoch,
                                                                 self.args.dset_name))
-        for img, all_attr_label in pbar:
+        for img, all_attr_label, id_data in pbar:
             img = img.to(self.device, non_blocking=True)
             target_attr_label = all_attr_label[:, self.target_attr_index]
             target_attr_label = target_attr_label.to(

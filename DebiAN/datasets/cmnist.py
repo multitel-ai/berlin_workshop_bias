@@ -15,10 +15,10 @@ class CMNIST(Dataset):
     bias_attr_index = 1
 
 
-    def __init__(self, root, split, transform=ToTensor()):
+    def __init__(self, root, split,percent,transform=ToTensor()):
         super(CMNIST, self).__init__()
         
-        self.root = root
+        self.root = root + f"/cmnist/{percent}"
         self.transform = transform
 
         assert split in ['train', 'valid','test']
