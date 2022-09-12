@@ -1,0 +1,13 @@
+numpy
+opencv-python
+Pillow
+sacred
+scikit-image
+scikit-learn
+scipy
+tensorboard
+torch
+torchvision
+tqdm
+wandb
+tensorboardX

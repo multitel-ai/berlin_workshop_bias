@@ -1,6 +1,18 @@
 # berlin_workshop_bias
 
-## Textual datasets :
+## Settings
+Install the requirements.txt file, e.g. `pip install -r requirements.txt`. (to update with each addition of detection/mitigation methods.)
+
+## Script Usage
+Use `python generation.py` as the main file to launch detection/mitigation methods on specific models and datasets. 
+* Add `--models mlp` to use a 3-layer mlp, or `resnet18`, `resnet34`, `resnet50`
+* Add `--dataset_name cmnist` to use the ColoredMNIST dataset, alongside `--dataset_percent 0.5pct` between {0.5pct, 1pct, 2pct, 5pct}
+* Add optional `--dataset_root path/to/root/before/the/dataset` 
+
+* e.g; `python generation.py --dataset_name cmnist --dataset_root data/cmnist --dataset_percent 0.5pct`
+
+
+## (Addition of Textual datasets :)
 ### Stereoset : 
 Website : (website: https://stereoset.mit.edu/)
 
