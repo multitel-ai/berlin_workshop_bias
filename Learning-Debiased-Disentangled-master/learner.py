@@ -30,7 +30,7 @@ class Learner(object):
         data2batch_size = {'cmnist': 256,
                            'cifar10c': 256,
                            'bffhq': 64}
-        
+
         data2preprocess = {'cmnist': None,
                            'cifar10c': True,
                            'bffhq': True}
@@ -231,14 +231,15 @@ class Learner(object):
         accs = total_correct/float(total_num)
         model_b.train()
         model_l.train()
+        decoder.train()
 
         return accs
 
     def save_vanilla(self, step, best=None):
         if best:
-            model_path = os.path.join(self.result_dir, "best_model.th")
+            model_path = os.path.join(self.result_dir, "best_model_ae.th")
         else:
-            model_path = os.path.join(self.result_dir, "model_{}.th".format(step))
+            model_path = os.path.join(self.result_dir, "model_ae_{}.th".format(step))
         state_dict = {
             'steps': step,
             'state_dict': self.model_b.state_dict(),
@@ -378,13 +379,13 @@ class Learner(object):
                     _ = self.model_b(data)
                     hook_fn.remove()
                     z_b = z_b[0]
-                indices = np.random.permutation(z_b.size(0))
-                z_b_swap = z_b[indices]  # z tilde
-                bias_swap = bias[indices]  # y tilde
-                z_mix_conflict = torch.cat((z_l, z_b_swap), dim=1)
+                #indices = np.random.permutation(z_b.size(0))
+                #z_b_swap = z_b[indices]  # z tilde
+                #bias_swap = bias[indices]  # y tilde
+                #z_mix_conflict = torch.cat((z_l, z_b_swap), dim=1)
 
-                reconstruct = decoder.feature(z_mix_conflict)
-                reconstruct = reconstruct.view(256, 3, 28, 28)
+                reconstruct = decoder(torch.cat((z_l.detach(), z_b.detach()), dim=1)).to(self.device)
+                reconstruct = reconstruct.view(-1, 3, 28, 28)
 
                 for i in reconstruct:
                     i = i * 255
@@ -392,15 +393,39 @@ class Learner(object):
                     img = transform(i)
                     img.show()
 
+    def evaluate_ae(self, ae, data_loader, model='label'):
 
+        total_correct, total_num = 0, 0
 
+        for data, attr, index in tqdm(data_loader, leave=False):
+            label = attr[:, 0]
+            bias = attr[:, 1]
+            # label = attr
+            #data = data.to(self.device)
+            i_s = 3*28*28
+            batch_features = data.view(-1, i_s).to(self.device)
+            label = label.to(self.device)
 
+            with torch.no_grad():
 
+                z_l = ae(batch_features)
+                reconstruct = z_l.view(-1, 3, 28, 28)
+                # reconstruct = decoder.feature(z_mix_conflict)
+                #reconstruct = reconstruct.view(256, 3, 28, 28)
 
+                for i in reconstruct:
+                    #i = i * 255
+                    transform = T.ToPILImage()
+                    img = transform(i)
+                    img.show()
 
     def board_ours_dec(self, step, inference=None):
         # check label network
         valid_accs_d = self.evaluate_dec(self.model_b, self.model_l, self.decoder, self.valid_loader, model='label')
+
+    def board_ours_ae(self, step, inference=None):
+        # check label network
+        valid_accs_d = self.evaluate_ae(self.ae, self.valid_loader, model='label')
 
 
 
@@ -489,6 +514,69 @@ class Learner(object):
                 epoch += 1
                 cnt = 0
 
+    def train_AE(self, args):
+        # training AE ...
+        self.bloss = None
+        train_iter = iter(self.train_loader)
+        train_num = len(self.train_dataset.dataset)
+        epoch, cnt = 0, 0
+
+        i_s = 3 * 28 * 28
+
+        self.model_b = get_model('AE',i_s).to(self.device)
+
+        # create an optimizer object
+        # Adam optimizer with learning rate 1e-3
+        self.optimizer = optim.Adam(self.model_b.parameters(), lr=1e-3)
+
+        # mean-squared error loss
+        criterion = nn.MSELoss()
+        loss = 0
+        for step in tqdm(range(args.num_steps)):
+            try:
+                index, data, attr, _ = next(train_iter)
+            except:
+                train_iter = iter(self.train_loader)
+                index, data, attr, _ = next(train_iter)
+
+            batch_features = data.view(-1, i_s).to(self.device)
+            #data = data.to(self.device)
+            #attr = attr.to(self.device)
+            #label = attr[:, args.target_attr_idx]
+            self.optimizer.zero_grad()
+            outputs = self.model_b(batch_features)
+            train_loss = criterion(outputs, batch_features)
+            train_loss.backward()
+            self.optimizer.step()
+            loss += train_loss.item()
+            if self.bloss is None:
+                self.bloss = train_loss.item()
+            if train_loss.item() < self.bloss:
+                self.save_vanilla(step, best=True)
+                self.bloss = train_loss.item()
+
+
+            ##################################################
+            #################### LOGGING #####################
+            ##################################################
+
+            if step % args.save_freq == 0:
+                self.save_vanilla(step)
+
+            if step % args.log_freq == 0:
+                print(train_loss.item())
+                self.board_vanilla_loss(step, loss_b=train_loss.item())
+
+            #if step % args.valid_freq == 0:
+                #self.board_vanilla_acc(step, epoch)
+
+            cnt += len(index)
+            if cnt == train_num:
+                print(f'finished epoch: {epoch}')
+                epoch += 1
+                cnt = 0
+                loss = loss / args.num_steps
+
     def train_ours(self, args):
         epoch, cnt = 0, 0
         print('************** main training starts... ************** ')
@@ -502,7 +590,7 @@ class Learner(object):
         if args.dataset == 'cmnist':
             self.model_l = get_model('mlp_DISENTANGLE', self.num_classes).to(self.device)
             self.model_b = get_model('mlp_DISENTANGLE', self.num_classes).to(self.device)
-            self.decoder = get_model('mlp_Decoder', self.num_classes).to(self.device)
+            self.decoder = get_model('AE', 3*28*28).to(self.device)
 
         else:
             if self.args.use_resnet20: # Use this option only for comparing with LfF
@@ -527,14 +615,13 @@ class Learner(object):
 
         self.optimizer_d = torch.optim.Adam(
             self.decoder.parameters(),
-            lr=args.lr,
-            weight_decay=args.weight_decay,
+            lr=1e-3
         )
 
         if args.use_lr_decay:
             self.scheduler_b = optim.lr_scheduler.StepLR(self.optimizer_b, step_size=args.lr_decay_step, gamma=args.lr_gamma)
             self.scheduler_l = optim.lr_scheduler.StepLR(self.optimizer_l, step_size=args.lr_decay_step, gamma=args.lr_gamma)
-            self.scheduler_d = optim.lr_scheduler.StepLR(self.optimizer_d, step_size=args.lr_decay_step, gamma=args.lr_gamma)
+            #self.scheduler_d = optim.lr_scheduler.StepLR(self.optimizer_d, step_size=args.lr_decay_step, gamma=args.lr_gamma)
 
 
         self.bias_criterion = GeneralizedCELoss(q=0.7)
@@ -592,7 +679,21 @@ class Learner(object):
 
                     z_l = z_l[0]
 
-            z_d = torch.cat((z_l.detach(), z_b.detach()), dim=1)
+            if step > args.curr_step:
+                z = torch.cat((z_l.detach(), z_b.detach()), dim=1).to(self.device)
+                self.optimizer_d.zero_grad()
+                batch_features = data.view(-1, 3*28*28).to(self.device)
+                pred_dec = self.decoder(z)
+
+
+                loss_d = self.decoder_criterion(pred_dec, batch_features)
+
+                loss_d.backward()
+                self.optimizer_d.step()
+            else:
+                loss_d = 0
+
+
             # z=[z_l, z_b]
             # Gradients of z_b are not backpropagated to z_l (and vice versa) in order to guarantee disentanglement of representation.
             z_conflict = torch.cat((z_l, z_b.detach()), dim=1)
@@ -605,8 +706,6 @@ class Learner(object):
             loss_dis_conflict = self.criterion(pred_conflict, label).detach()
             loss_dis_align = self.criterion(pred_align, label).detach()
 
-            pred_dec = self.decoder.feature(z_d)
-            pred_dec = pred_dec.view(256, 3, 28, 28)
 
 
 
@@ -631,9 +730,12 @@ class Learner(object):
             loss_weight = loss_dis_align / (loss_dis_align + loss_dis_conflict + 1e-8)                          # Eq.1 (reweighting module) in the main paper
             loss_dis_conflict = self.criterion(pred_conflict, label) * loss_weight.to(self.device)              # Eq.2 W(z)CE(C_i(z),y)
             loss_dis_align = self.bias_criterion(pred_align, label)                                             # Eq.2 GCE(C_b(z),y)
-
+            #loss_d = 0
             # feature-level augmentation : augmentation after certain iteration (after representation is disentangled at a certain level)
             if step > args.curr_step:
+
+
+
                 indices = np.random.permutation(z_b.size(0))
                 z_b_swap = z_b[indices]         # z tilde
                 label_swap = label[indices]     # y tilde
@@ -662,22 +764,24 @@ class Learner(object):
             loss_swap = loss_swap_conflict.mean() + args.lambda_swap_align * loss_swap_align.mean()             # Eq.3 L_swap
             loss = loss_dis + lambda_swap * loss_swap                                                           # Eq.4 Total objective
             #print(data.shape)
-            loss_d = self.decoder_criterion(pred_dec, data)
+
+
+
 
             self.optimizer_l.zero_grad()
             self.optimizer_b.zero_grad()
-            self.optimizer_d.zero_grad()
-            loss.backward(retain_graph=True)
-            #loss.backward()
-            loss_d.backward()
+
+            #loss.backward(retain_graph=True)
+            loss.backward()
+
             self.optimizer_l.step()
             self.optimizer_b.step()
-            self.optimizer_d.step()
+
 
             if step >= args.curr_step and args.use_lr_decay:
                 self.scheduler_b.step()
                 self.scheduler_l.step()
-                self.scheduler_d.step()
+
 
             if args.use_lr_decay and step % args.lr_decay_step == 0:
                 print('******* learning rate decay .... ********')
@@ -743,3 +847,8 @@ class Learner(object):
         self.model_b.load_state_dict(torch.load(os.path.join(args.pretrained_path, 'best_model_b.th'), map_location=torch.device(self.device))['state_dict'])
         self.decoder.load_state_dict(torch.load(os.path.join(args.pretrained_path, 'best_model_d.th'), map_location=torch.device(self.device))['state_dict'])
         self.board_ours_dec(step=0, inference=True)
+
+    def test_ae(self, args):
+        self.ae = get_model('AE', 3*28*28).to(self.device)
+        self.ae.load_state_dict(torch.load(os.path.join(args.pretrained_path, 'best_model_ae.th'), map_location=torch.device(self.device))['state_dict'])
+        self.board_ours_ae(step=0, inference=True)

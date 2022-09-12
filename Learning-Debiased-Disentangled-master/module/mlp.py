@@ -90,8 +90,6 @@ class MLP_Decoder(nn.Module):
     def __init__(self, num_classes=10):
         super(MLP_Decoder, self).__init__()
         self.feature = nn.Sequential(
-            #nn.Linear(32),
-            #nn.ReLU(),
             nn.Linear(32, 512),
             nn.ReLU(),
             nn.Linear(512, 1042),
@@ -99,17 +97,37 @@ class MLP_Decoder(nn.Module):
             nn.Linear(1042, 3 * 28 * 28),
             nn.Tanh()
         )
-        self.fc = nn.Tanh()
+
 
     def forward(self, x, mode=None, return_feat=False):
-        #x = x.view(x.size(0), -1) / 255
-        feat = x = self.feature(x)
+        feat = self.feature(x)
         return feat
-#        final_x = self.classifier(x)
-#        if mode == 'tsne' or mode == 'mixup':
-#            return x, final_x
-#        else:
-#            if return_feat:
-#                return final_x, feat
-#            else:
-#                return final_x
+
+
+class AE(nn.Module):
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.encoder_hidden_layer = nn.Linear(
+            in_features=kwargs["input_shape"], out_features=128
+        )
+        self.encoder_output_layer = nn.Linear(
+            in_features=128, out_features=32
+        )
+        self.decoder_hidden_layer = nn.Linear(
+            in_features=32, out_features=128
+        )
+        self.decoder_output_layer = nn.Linear(
+            in_features=128, out_features=kwargs["input_shape"]
+        )
+
+    def forward(self, features):
+        #activation = self.encoder_hidden_layer(features)
+        #activation = torch.relu(activation)
+        #code = self.encoder_output_layer(activation)
+        #code = torch.relu(code)
+        #activation = self.decoder_hidden_layer(code)
+        activation = self.decoder_hidden_layer(features)
+        activation = torch.relu(activation)
+        activation = self.decoder_output_layer(activation)
+        reconstructed = torch.relu(activation)
+        return reconstructed
