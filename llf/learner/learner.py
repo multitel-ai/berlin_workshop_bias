@@ -3,7 +3,7 @@
 This code is inspired form https://github.com/alinlab/LfF/blob/master/train.py
 '''
 
-import os
+import os, sys
 import pickle
 from tqdm import tqdm
 from datetime import datetime
@@ -12,6 +12,7 @@ import numpy as np
 
 import torch
 from torch.utils.data import DataLoader, RandomSampler, BatchSampler, WeightedRandomSampler
+from torch.utils.data.dataset import Dataset
 from torch.utils.data.dataset import Subset
 from torchvision import transforms as T
 import torch.nn.functional as F
@@ -23,10 +24,24 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     from torch.utils.tensorboard import SummaryWriter
 
-from data.utils import get_dataset, IdxDataset, ZippedDataset
+
 from models.models import get_model, GeneralizedCELoss
 from .utils import MultiDimAverageMeter, EMA
 
+
+sys.path.insert(0,'..')
+from datasets import get_dataset
+
+
+class IdxDataset(Dataset):
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        return (idx, *self.dataset[idx])
 
 
 def train(
@@ -55,18 +70,18 @@ def train(
     print(dataset_tag)
 
     #Reading training and validation data
-    train_dataset = get_dataset(
+    train_dataset, num_classes = get_dataset(
         dataset_tag,
-        data_dir=data_dir,
+        root=data_dir,
         dataset_split="train",
-        transform_split="train",
+        #transform_split="train",
         percent=percent
     )
-    valid_dataset = get_dataset(
+    valid_dataset, num_classes = get_dataset(
         dataset_tag,
-        data_dir=data_dir,
+        root=data_dir,
         dataset_split="valid",
-        transform_split="valid",
+        #transform_split="valid",
         percent= percent                             
     )
 
@@ -82,11 +97,11 @@ def train(
 
     attr_dims = []
     attr_dims.append(torch.max(train_target_attr).item() + 1)
-    num_classes = attr_dims[0] 
-        
+    # num_classes = attr_dims[0] 
+    
     #IdxDataset just add the first element of idx before x
     train_dataset = IdxDataset(train_dataset)
-    valid_dataset = IdxDataset(valid_dataset)    
+    valid_dataset = IdxDataset(valid_dataset)  
 
     # make loader    
     train_loader = DataLoader(
@@ -135,7 +150,7 @@ def train(
         acc = 0
         total_correct, total_num = 0, 0
         #attrwise_acc_meter = MultiDimAverageMeter(attr_dims)
-        for index, data, attr, _ in tqdm(data_loader, leave=False):
+        for index, data, attr, datapath in tqdm(data_loader, leave=False):
             label = attr[:, target_attr_idx]
             data = data.to(device)
             attr = attr.to(device)
@@ -163,10 +178,10 @@ def train(
         # train main model
         try:
             
-            index, data, attr, _ = next(train_iter)
+            index, data, attr, data_path = next(train_iter)
         except:
             train_iter = iter(train_loader)
-            index, data, attr, _ = next(train_iter)
+            index, data, attr, data_path = next(train_iter)
 
         data = data.to(device)
         attr = attr.to(device)

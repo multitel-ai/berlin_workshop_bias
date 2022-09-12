@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     # experiment
     parser.add_argument("--train_lff", action="store_true", help="whether to use learning from failure")
-    parser.add_argument("--train_vanilla", action="store_false", help="whether to train vanilla")
+    parser.add_argument("--train_vanilla", action="store_true", help="whether to train vanilla")
 
     args = parser.parse_args()
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         main_tag = "classic",
         dataset_tag = args.dataset,
         model_tag = args.model,
-        data_dir = "data",
+        data_dir = "../data",
         log_dir = "./logs_classic",
         device = args.device,
         target_attr_idx = args.target_attr_idx,
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         main_tag = "lff",
         dataset_tag = args.dataset,
         model_tag = args.model,
-        data_dir = "data",
+        data_dir = "../data",
         log_dir = "./logs",
         device = args.device,
         target_attr_idx = args.target_attr_idx,
