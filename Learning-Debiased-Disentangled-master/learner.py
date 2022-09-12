@@ -837,7 +837,7 @@ class Learner(object):
         if args.dataset == 'cmnist':
             self.model_l = get_model('mlp_DISENTANGLE', self.num_classes).to(self.device)
             self.model_b = get_model('mlp_DISENTANGLE', self.num_classes).to(self.device)
-            self.decoder = get_model('mlp_Decoder', self.num_classes).to(self.device)
+            self.decoder = get_model('AE', 3*28*28).to(self.device)
         else:
             self.model_l = get_model('resnet_DISENTANGLE', self.num_classes).to(self.device)
             self.model_b = get_model('resnet_DISENTANGLE', self.num_classes).to(self.device)

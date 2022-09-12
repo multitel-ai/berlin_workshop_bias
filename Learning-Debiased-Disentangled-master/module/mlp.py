@@ -15,10 +15,10 @@ class MLP_DISENTANGLE(nn.Module):
             nn.ReLU(),
             nn.Linear(100, 100),
             nn.ReLU(),
-            nn.Linear(100, 16),
+            nn.Linear(100, 32),
             nn.ReLU()
         )
-        self.fc = nn.Linear(32, num_classes)
+        self.fc = nn.Linear(64, num_classes)
 
 
     def extract(self, x):
@@ -86,47 +86,31 @@ class Noise_MLP(nn.Module):
         return x
 
 
-class MLP_Decoder(nn.Module):
-    def __init__(self, num_classes=10):
-        super(MLP_Decoder, self).__init__()
-        self.feature = nn.Sequential(
-            nn.Linear(32, 512),
-            nn.ReLU(),
-            nn.Linear(512, 1042),
-            nn.ReLU(),
-            nn.Linear(1042, 3 * 28 * 28),
-            nn.Tanh()
-        )
-
-
-    def forward(self, x, mode=None, return_feat=False):
-        feat = self.feature(x)
-        return feat
 
 
 class AE(nn.Module):
     def __init__(self, **kwargs):
         super().__init__()
         self.encoder_hidden_layer = nn.Linear(
-            in_features=kwargs["input_shape"], out_features=128
+            in_features=64, out_features=128
         )
         self.encoder_output_layer = nn.Linear(
-            in_features=128, out_features=32
+            in_features=128, out_features=128
         )
         self.decoder_hidden_layer = nn.Linear(
-            in_features=32, out_features=128
+            in_features=128, out_features=128
         )
         self.decoder_output_layer = nn.Linear(
             in_features=128, out_features=kwargs["input_shape"]
         )
 
     def forward(self, features):
-        #activation = self.encoder_hidden_layer(features)
-        #activation = torch.relu(activation)
-        #code = self.encoder_output_layer(activation)
-        #code = torch.relu(code)
-        #activation = self.decoder_hidden_layer(code)
-        activation = self.decoder_hidden_layer(features)
+        activation = self.encoder_hidden_layer(features)
+        activation = torch.relu(activation)
+        code = self.encoder_output_layer(activation)
+        code = torch.relu(code)
+        activation = self.decoder_hidden_layer(code)
+        #activation = self.decoder_hidden_layer(features)
         activation = torch.relu(activation)
         activation = self.decoder_output_layer(activation)
         reconstructed = torch.relu(activation)
