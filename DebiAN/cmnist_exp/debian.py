@@ -1,9 +1,7 @@
 import os
 import torch
-
 import sys
-path = os.getcwd()
-sys.path.append(path)
+
 
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -12,8 +10,6 @@ from common.constants import EPS
 from cmnist_exp.base_trainer import BaseTrainer
 from models.simple_cls import get_simple_classifier
 from models.binary_classifier import get_resnet18_classifier
-
-
 
 
 class Trainer(BaseTrainer):
@@ -37,7 +33,7 @@ class Trainer(BaseTrainer):
                 num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
             self.classifier = get_resnet18_classifier(
                 num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
-
+         
 
     def _setup_criterion(self):
         self.criterion = torch.nn.CrossEntropyLoss(reduction='none')
@@ -51,7 +47,7 @@ class Trainer(BaseTrainer):
     def _setup_method_name_and_default_name(self):
         args.method_name = "debian"
         self.default_name = (
-            "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}_{}".format(
+            "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}_{}".format(              
                 args.batch_size,
                 args.weight_decay,
                 args.lr,
@@ -232,7 +228,7 @@ class Trainer(BaseTrainer):
 if __name__ == '__main__':
     parser = get_parser()
     parser.add_argument('--ckpt_dir', type=str,
-                        default='exp/cmnist')
+                        default='DebiAN/exp/cmnist')
     args = parse_and_check(parser)
     trainer = Trainer(args)
     trainer.run()

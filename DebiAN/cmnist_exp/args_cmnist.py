@@ -20,7 +20,7 @@ def get_parser():
     parser.add_argument('--arch', type=str, default='mlp')
     parser.add_argument('--pretrained', type=bool, default=False)
     parser.add_argument('--weight_decay', type=float, default=1e-4)
-    parser.add_argument("--percent", help="percentage of conflict", default= "0.5pct", type=str)
+    parser.add_argument("--percent", help="percentage of conflict", default= "1pct", type=str)
     return parser
 
 
