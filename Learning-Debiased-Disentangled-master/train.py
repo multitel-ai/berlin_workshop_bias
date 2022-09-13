@@ -46,6 +46,7 @@ if __name__ == '__main__':
     # experiment
     parser.add_argument("--train_ours", action="store_true", help="whether to train our method")
     parser.add_argument("--train_vanilla", action="store_true", help="whether to train vanilla")
+    parser.add_argument("--train_AE", action="store_true", help="whether to train vanilla")
 
     args = parser.parse_args()
 
@@ -60,6 +61,9 @@ if __name__ == '__main__':
         learner.train_ours(args)
     elif args.train_vanilla:
         learner.train_vanilla(args)
+    elif args.train_AE:
+        learner.train_AE(args)
+
     else:
         print('choose one of the two options ...')
         import sys
