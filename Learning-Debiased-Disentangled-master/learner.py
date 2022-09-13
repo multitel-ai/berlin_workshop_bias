@@ -11,7 +11,11 @@ import torchvision.transforms as T
 import os
 import torch.optim as optim
 
-from data.util import get_dataset, IdxDataset
+import sys
+path = os.getcwd()
+sys.path.append(os.path.abspath(os.path.join(path, os.pardir)))
+
+from data.utils import get_dataset, IdxDataset
 from module.loss import GeneralizedCELoss
 from module.util import get_model
 from util import EMA
