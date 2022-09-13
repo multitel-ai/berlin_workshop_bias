@@ -1,4 +1,9 @@
 import os
+
+import sys
+path = os.getcwd()
+sys.path.append(os.path.abspath(os.path.join(path, os.pardir)))
+
 import torch
 import numpy as np
 from datasets.cmnist import CMNIST
@@ -28,11 +33,11 @@ class BaseTrainer:
         #test_dataset = CMNIST(
         #    args.data_dir, 'valid',percent=args.percent)
 
-        
+
         self.attr_dims = [10,10]
         self.target_attr_index = CMNIST.target_attr_index
         self.bias_attr_index = CMNIST.bias_attr_index
-  
+
         self.num_classes = self.attr_dims[0]
         self.eye_tsr = torch.eye(self.attr_dims[0]).long()
 
@@ -41,7 +46,7 @@ class BaseTrainer:
 
         self.train_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers,
                                        shuffle=True, pin_memory=args.pin_memory,
-                                       persistent_workers=args.num_workers > 0)        
+                                       persistent_workers=args.num_workers > 0)
 
         self.test_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers,
                                       shuffle=False, pin_memory=args.pin_memory,
@@ -110,7 +115,7 @@ class BaseTrainer:
             epoch, self.test_loader, self.args.dset_name)
         return log_dict
 
-    @torch.no_grad()
+    # @torch.no_grad()
     def __eval_split(self, epoch, loader, dset_name):
         self.classifier.eval()
 
@@ -145,10 +150,10 @@ class BaseTrainer:
         multi_dim_color_acc = attrwise_acc_meter.get_mean()
         confict_align = ['conflict', 'align']
         total_acc_align_conflict = 0
-       
-        
+
+
         for color in range(2):
-            
+
             mask_color = (self.eye_tsr == color)
             mask_nan=~(torch.isnan(multi_dim_color_acc))
             mask=mask_color*mask_nan
@@ -176,4 +181,3 @@ class BaseTrainer:
             log_dict.update(eval_dict)
             self.save_ckpt(e)
             print(log_dict)
-
