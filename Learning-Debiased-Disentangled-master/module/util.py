@@ -23,6 +23,8 @@ def get_model(model_tag, num_classes):
         return MLP_DISENTANGLE(num_classes=num_classes)
     elif model_tag == "mlp_Decoder":
         return MLP_Decoder(num_classes=num_classes)
+    elif model_tag == "AE":
+        return AE(input_shape=num_classes)
     elif model_tag == 'resnet_DISENTANGLE':
         print('bringing no pretrained resnet18 disentangle...')
         model = resnet18(pretrained=False)
