@@ -1,8 +1,7 @@
 import os
 import torch
 
-
-from datasets.multi_color_mnist import MultiColorMNIST
+from debian_datasets.multi_color_mnist import MultiColorMNIST
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from common.utils import MultiDimAverageMeter
@@ -13,9 +12,9 @@ class BaseTrainer:
         self.args = args
 
         train_dataset = MultiColorMNIST(
-            'data', 'train', args.left_color_skew, args.right_color_skew, args.severity)
+            args.data_dir, 'train', args.left_color_skew, args.right_color_skew, args.severity)
         test_dataset = MultiColorMNIST(
-            'data', 'valid', args.left_color_skew, args.right_color_skew, args.severity)
+            args.data_dir, 'valid', args.left_color_skew, args.right_color_skew, args.severity)
 
         attr_dims = []
         self.target_attr_index = MultiColorMNIST.target_attr_index
@@ -61,7 +60,7 @@ class BaseTrainer:
 
         args.ckpt_dir = os.path.join(args.ckpt_dir, args.name)
         if not os.path.isdir(args.ckpt_dir):
-            os.mkdir(args.ckpt_dir)
+            os.makedirs(args.ckpt_dir)
         self.ckpt_dir = args.ckpt_dir
 
         if args.amp:

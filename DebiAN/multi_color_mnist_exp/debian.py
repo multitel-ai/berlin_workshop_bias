@@ -219,7 +219,7 @@ class Trainer(BaseTrainer):
 if __name__ == '__main__':
     parser = get_parser()
     parser.add_argument('--ckpt_dir', type=str,
-                        default='exp/multi_color_mnist')
+                        default='exp/multi_color_mnist/MLP_32')
     args = parse_and_check(parser)
     trainer = Trainer(args)
     trainer.run()

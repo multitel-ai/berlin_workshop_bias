@@ -6,7 +6,7 @@ from common.utils import initialize_seeds
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dset_dir', default='data', type=str)
+    parser.add_argument('--data_dir', default='data', type=str)
     parser.add_argument('--dset_name', type=str, default='multi_color_mnist')
     parser.add_argument('--epoch', default=100, type=int)
     parser.add_argument('--batch_size', default=256, type=int)
@@ -21,8 +21,8 @@ def get_parser():
     parser.add_argument('--weight_decay', type=float, default=1e-4)
 
     # dataset
-    parser.add_argument('--left_color_skew', type=float, default=0.0, choices=[0.005, 0.01, 0.02, 0.05])
-    parser.add_argument('--right_color_skew', type=float, default=0.0, choices=[0.005, 0.01, 0.02, 0.05])
+    parser.add_argument('--left_color_skew', type=float, default=0.005, choices=[0.005, 0.01, 0.02, 0.05])
+    parser.add_argument('--right_color_skew', type=float, default=0.05, choices=[0.005, 0.01, 0.02, 0.05])
     parser.add_argument('--severity', type=int, default=4)
 
     return parser
@@ -30,7 +30,7 @@ def get_parser():
 
 def parse_and_check(parser, required_args=None):
     args = parser.parse_args()
-    assert args.left_color_skew <= args.right_color_skew
+    #assert args.left_color_skew <= args.right_color_skew
     # set seeds
     initialize_seeds(args.seed)
 
@@ -41,6 +41,6 @@ def parse_and_check(parser, required_args=None):
             assert getattr(args, a, None) is not None, f'{a} is required.'
 
     if getattr(args, 'ckpt_dir', None) is not None:
-        assert os.path.isdir(args.ckpt_dir)
+        assert ~os.path.isdir(args.ckpt_dir)
 
     return args

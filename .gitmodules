@@ -1,3 +1,3 @@
-[submodule "discover_unknown_biases"]
+[submodule "adapter_D_U_B"]
 	path = discover_unknown_biases
 	url = https://github.com/FlorentDuboquet/discover_unknown_biases.git

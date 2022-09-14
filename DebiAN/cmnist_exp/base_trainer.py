@@ -1,4 +1,5 @@
 import os
+<<<<<<< HEAD
 
 import sys
 path = os.getcwd()
@@ -14,6 +15,10 @@ import numpy as np
 
 # sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from berlin_workshop_bias.DebiAN.datasets.cmnist import CMNIST
+=======
+import torch
+import numpy as np
+>>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from common.utils import MultiDimAverageMeter
@@ -40,20 +45,26 @@ class BaseTrainer:
         #test_dataset = CMNIST(
         #    args.data_dir, 'valid',percent=args.percent)
 
-
+        
         self.attr_dims = [10,10]
-        self.target_attr_index = CMNIST.target_attr_index
-        self.bias_attr_index = CMNIST.bias_attr_index
-
+        self.target_attr_index = 0
+        self.bias_attr_index = 1
+  
         self.num_classes = self.attr_dims[0]
         self.eye_tsr = torch.eye(self.attr_dims[0]).long()
 
         self.train_dataset = train_dataset
         train_dataset = self._modify_train_set(train_dataset)
 
+<<<<<<< HEAD
         self.train_loader = DataLoader(train_dataset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,
                                        shuffle=True, pin_memory=self.args.pin_memory,
                                        persistent_workers=self.args.num_workers > 0)
+=======
+        self.train_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers,
+                                       shuffle=True, pin_memory=args.pin_memory,
+                                       persistent_workers=args.num_workers > 0)        
+>>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
 
         self.test_loader = DataLoader(test_dataset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,
                                       shuffle=False, pin_memory=self.args.pin_memory,
@@ -122,7 +133,7 @@ class BaseTrainer:
             epoch, self.test_loader, self.args.dataset)
         return log_dict
 
-    # @torch.no_grad()
+    @torch.no_grad()
     def __eval_split(self, epoch, loader, dset_name):
         self.classifier.eval()
 
@@ -157,10 +168,10 @@ class BaseTrainer:
         multi_dim_color_acc = attrwise_acc_meter.get_mean()
         confict_align = ['conflict', 'align']
         total_acc_align_conflict = 0
-
-
+       
+        
         for color in range(2):
-
+            
             mask_color = (self.eye_tsr == color)
             mask_nan=~(torch.isnan(multi_dim_color_acc))
             mask=mask_color*mask_nan
@@ -188,3 +199,4 @@ class BaseTrainer:
             log_dict.update(eval_dict)
             self.save_ckpt(e)
             print(log_dict)
+

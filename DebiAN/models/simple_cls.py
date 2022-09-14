@@ -2,17 +2,17 @@ import torch.nn as nn
 
 
 class MLP(nn.Module):
-    def __init__(self, num_class=10, return_feat=False):
+    def __init__(self, num_class=10, last_hidden_layer=32, return_feat=False):
         super(MLP, self).__init__()
         self.feature = nn.Sequential(
             nn.Linear(3 * 28*28, 100),
             nn.ReLU(),
             nn.Linear(100, 100),
             nn.ReLU(),
-            nn.Linear(100, 100),
+            nn.Linear(100, last_hidden_layer),
             nn.ReLU()
         )
-        self.classifier = nn.Linear(100, num_class)
+        self.classifier = nn.Linear(last_hidden_layer, num_class)
         self.return_feat = return_feat
 
     def forward(self, x):
@@ -26,9 +26,15 @@ class MLP(nn.Module):
             return x
 
 
+<<<<<<< HEAD
 def get_simple_classifier(arch, num_class=10, return_feat=False):
     if arch == 'MLP':
         model = MLP(num_class, return_feat=return_feat)
+=======
+def get_simple_classifier(arch, num_class=10,last_hidden_layer=32,return_feat=False):
+    if arch == 'mlp':
+        model = MLP(num_class,last_hidden_layer=last_hidden_layer,return_feat=return_feat)
+>>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
     else:
         raise NotImplementedError
 
