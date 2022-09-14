@@ -1,7 +1,7 @@
 # berlin_workshop_bias
 
 ## Settings
-Install the requirements.txt file, e.g. `pip install -r requirements.txt`. (to update with each addition of detection/mitigation methods.)
+Install the requirements.txt file, e.g. `pip install -r requirements.txt`. Note that this requirements.txt works at the very least for Python 3.7.9, maybe you need to allow more versions of pandas, numpy, ... if you use other python versions.
 
 ## Script Usage
 Use `python generation.py` as the main file to launch detection/mitigation methods on specific models and datasets, when you are in your berlin_workshop_bias folder. 
