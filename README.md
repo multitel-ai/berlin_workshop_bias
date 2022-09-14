@@ -10,7 +10,7 @@ Use `python generation.py` as the main file to launch detection/mitigation metho
 * Add `--dataset cmnist` to use the ColoredMNIST dataset, alongside `--percent 0.5pct` between {0.5pct, 1pct, 2pct, 5pct}
 * Add optional `--data_dir data` 
 
-* e.g : 
+e.g : 
 1) ldd : `python generation.py --mitigation ldd --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
 2) lff : `python generation.py --mitigation lff --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
 3) debian : `python generation.py --mitigation debian --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
