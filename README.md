@@ -5,10 +5,11 @@ Install the requirements.txt file, e.g. `pip install -r requirements.txt`. Note 
 
 ## Script Usage
 Use `python generation.py` as the main file to launch detection/mitigation methods on specific models and datasets, when you are in your berlin_workshop_bias folder. 
-* Add `--mitigation ldd` to use a mitigation method between 'ldd', 'lff', 'debian', or just to train a vanilla model.
+* Add `--mitigation ldd` to use a mitigation method between 'ldd', 'lff', 'debian', or simply 'vanilla' to train a vanilla model.
 * Add `--models MLP` to use a 3-layer mlp (or `resnet18`, `resnet34`, `resnet50` in the future.)
-* Add `--dataset cmnist` to use the ColoredMNIST dataset, alongside `--percent 0.5pct` between {0.5pct, 1pct, 2pct, 5pct}
-* Add optional `--data_dir data` 
+* Add `--dataset cmnist` to use the ColoredMNIST dataset,
+* Alongside the CMNIST dataset, use `--percent 0.5pct` between {0.5pct, 1pct, 2pct, 5pct} to specify the percentage of conflict examples you want to use (not biased data = numbers of various colors in this case.)
+* Add `--data_dir data` to specify the path to the data folder.
 
 e.g : 
 1) ldd : `python generation.py --mitigation ldd --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
@@ -18,7 +19,7 @@ e.g :
 
 
 
-## (Addition of Textual datasets :)
+## (Addition of Textual datasets in the future :)
 ### Stereoset : 
 Website : (website: https://stereoset.mit.edu/)
 
