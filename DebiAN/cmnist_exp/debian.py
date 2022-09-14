@@ -1,13 +1,9 @@
 import os
 import torch
 import sys
-<<<<<<< HEAD
 path = os.getcwd()
 # sys.path.append(path)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-=======
-
->>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
 
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -39,7 +35,7 @@ class Trainer(BaseTrainer):
                 num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
             self.classifier = get_resnet18_classifier(
                 num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
-         
+
 
     def _setup_criterion(self):
         self.criterion = torch.nn.CrossEntropyLoss(reduction='none')
@@ -53,21 +49,12 @@ class Trainer(BaseTrainer):
     def _setup_method_name_and_default_name(self):
         self.args.method_name = "debian"
         self.default_name = (
-<<<<<<< HEAD
             "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}_{}".format(
                 self.args.batch_size,
                 self.args.weight_decay,
                 self.args.lr,
                 self.args.dataset,
                 self.args.percent
-=======
-            "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}_{}".format(              
-                args.batch_size,
-                args.weight_decay,
-                args.lr,
-                args.dset_name,
-                args.percent
->>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
             )
         )
 
@@ -242,11 +229,6 @@ class Trainer(BaseTrainer):
 
 if __name__ == '__main__':
     parser = get_parser()
-<<<<<<< HEAD
-=======
-    parser.add_argument('--ckpt_dir', type=str,
-                        default='DebiAN/exp/cmnist')
->>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
     args = parse_and_check(parser)
     trainer = Trainer(args)
     trainer.run()

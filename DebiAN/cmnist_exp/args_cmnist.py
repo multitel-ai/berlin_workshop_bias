@@ -21,13 +21,9 @@ def get_parser():
     parser.add_argument('--model', type=str, default='mlp')
     parser.add_argument('--pretrained', type=bool, default=False)
     parser.add_argument('--weight_decay', type=float, default=1e-4)
-<<<<<<< HEAD
     parser.add_argument("--percent", help="percentage of conflict", default= "0.5pct", type=str)
     parser.add_argument('--logs', type=str, default='logs/debian/')
     # parser.add_argument('--ckpt_dir', type=str, default='exp/cmnist')
-=======
-    parser.add_argument("--percent", help="percentage of conflict", default= "1pct", type=str)
->>>>>>> bfe33461ff3da37f132cd072d87661a5a83ce2b0
     return parser
 
 
