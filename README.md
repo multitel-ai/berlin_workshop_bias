@@ -4,12 +4,18 @@
 Install the requirements.txt file, e.g. `pip install -r requirements.txt`. (to update with each addition of detection/mitigation methods.)
 
 ## Script Usage
-Use `python generation.py` as the main file to launch detection/mitigation methods on specific models and datasets. 
-* Add `--models mlp` to use a 3-layer mlp, or `resnet18`, `resnet34`, `resnet50`
-* Add `--dataset_name cmnist` to use the ColoredMNIST dataset, alongside `--dataset_percent 0.5pct` between {0.5pct, 1pct, 2pct, 5pct}
-* Add optional `--dataset_root path/to/root/before/the/dataset` 
+Use `python generation.py` as the main file to launch detection/mitigation methods on specific models and datasets, when you are in your berlin_workshop_bias folder. 
+* Add `--mitigation ldd` to use a mitigation method between 'ldd', 'lff', 'debian', or just to train a vanilla model.
+* Add `--models MLP` to use a 3-layer mlp (or `resnet18`, `resnet34`, `resnet50` in the future.)
+* Add `--dataset cmnist` to use the ColoredMNIST dataset, alongside `--percent 0.5pct` between {0.5pct, 1pct, 2pct, 5pct}
+* Add optional `--data_dir data` 
 
-* e.g; `python generation.py --dataset_name cmnist --dataset_root data/cmnist --dataset_percent 0.5pct`
+* e.g : 
+1) ldd : `python generation.py --mitigation ldd --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
+2) lff : `python generation.py --mitigation lff --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
+3) debian : `python generation.py --mitigation debian --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
+4) vanilla (based on ldd code) : `python generation.py --mitigation vanilla --model MLP --dataset cmnist --data_dir data --num_workers 4 --percent 5pct`
+
 
 
 ## (Addition of Textual datasets :)
