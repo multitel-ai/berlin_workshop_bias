@@ -2,11 +2,18 @@ import os
 
 import sys
 path = os.getcwd()
-sys.path.append(os.path.abspath(os.path.join(path, os.pardir)))
-
+nextPath = os.path.join(path,'DebiAN')
+# print(nextPath)
+sys.path.append(nextPath)
+sys.path.append(os.path.join(nextPath, 'datasets'))
+# print(sys.path)
+# sys.path.append(os.path.join(path, "DebiAN"))
+# sys.path.append(os.path.abspath(os.path.join(path, os.pardir)))
 import torch
 import numpy as np
-from datasets.cmnist import CMNIST
+
+# sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from berlin_workshop_bias.DebiAN.datasets.cmnist import CMNIST
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from common.utils import MultiDimAverageMeter
@@ -16,17 +23,17 @@ from data.utils import get_dataset
 class BaseTrainer:
     def __init__(self, args):
         self.args = args
-        train_dataset=get_dataset(args.dset_name,
-        data_dir=args.data_dir,
+        train_dataset=get_dataset(self.args.dataset,
+        data_dir=self.args.data_dir,
         dataset_split="train",
         transform_split="train",
-        percent=args.percent)
+        percent=self.args.percent)
 
-        test_dataset=get_dataset(args.dset_name,
-        data_dir=args.data_dir,
+        test_dataset=get_dataset(self.args.dataset,
+        data_dir=self.args.data_dir,
         dataset_split="valid",
         transform_split="valid",
-        percent=args.percent)
+        percent=self.args.percent)
 
         #train_dataset = CMNIST(
         #    args.data_dir, 'train',percent=args.percent)
@@ -44,33 +51,33 @@ class BaseTrainer:
         self.train_dataset = train_dataset
         train_dataset = self._modify_train_set(train_dataset)
 
-        self.train_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers,
-                                       shuffle=True, pin_memory=args.pin_memory,
-                                       persistent_workers=args.num_workers > 0)
+        self.train_loader = DataLoader(train_dataset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,
+                                       shuffle=True, pin_memory=self.args.pin_memory,
+                                       persistent_workers=self.args.num_workers > 0)
 
-        self.test_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers,
-                                      shuffle=False, pin_memory=args.pin_memory,
-                                      persistent_workers=args.num_workers > 0)
+        self.test_loader = DataLoader(test_dataset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,
+                                      shuffle=False, pin_memory=self.args.pin_memory,
+                                      persistent_workers=self.args.num_workers > 0)
         self.device = torch.device(0)
 
-        self.total_epoch = args.epoch
+        self.total_epoch = self.args.epoch
 
         self._setup_models()
         self._setup_criterion()
         self._setup_optimizers()
         self._setup_method_name_and_default_name()
 
-        if args.name is None:
-            args.name = self.default_name
+        if self.args.name is None:
+            self.args.name = self.default_name
         else:
-            args.name += f'_{self.default_name}'
+            self.args.name += f'_{self.default_name}'
 
-        args.ckpt_dir = os.path.join(args.ckpt_dir, args.name)
-        if not os.path.isdir(args.ckpt_dir):
-            os.mkdir(args.ckpt_dir)
-        self.ckpt_dir = args.ckpt_dir
+        self.args.logs = os.path.join(self.args.logs, self.args.name)
+        if not os.path.isdir(self.args.logs):
+            os.mkdir(self.args.logs)
+        self.logs = self.args.logs
 
-        if args.amp:
+        if self.args.amp:
             self.scaler = torch.cuda.amp.GradScaler()
 
     def train(self, epoch):
@@ -112,7 +119,7 @@ class BaseTrainer:
 
     def eval(self, epoch):
         log_dict = self.__eval_split(
-            epoch, self.test_loader, self.args.dset_name)
+            epoch, self.test_loader, self.args.dataset)
         return log_dict
 
     # @torch.no_grad()
@@ -127,7 +134,7 @@ class BaseTrainer:
         pbar = tqdm(loader, dynamic_ncols=True,
                     desc='[{}/{}] evaluating on ({})...'.format(epoch,
                                                                 self.total_epoch,
-                                                                self.args.dset_name))
+                                                                self.args.dataset))
         for img, all_attr_label, id_data in pbar:
             img = img.to(self.device, non_blocking=True)
             target_attr_label = all_attr_label[:, self.target_attr_index]

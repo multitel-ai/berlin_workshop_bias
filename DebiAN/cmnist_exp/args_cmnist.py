@@ -7,7 +7,8 @@ from common.utils import initialize_seeds
 def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_dir', default='data', type=str)
-    parser.add_argument('--dset_name', type=str, default='cmnist')
+    parser.add_argument('--dataset', type=str, default='cmnist')
+    # parser.add_argument('--dset_name', type=str, default='cmnist')
     parser.add_argument('--epoch', default=100, type=int)
     parser.add_argument('--batch_size', default=256, type=int)
     parser.add_argument('--lr', type=float, default=1e-3)
@@ -17,10 +18,12 @@ def get_parser():
     parser.add_argument('--lambda_penalty', type=float, default=1.0)
     parser.add_argument('--pin_memory', action='store_true',default=False)
     parser.add_argument('--amp', action='store_true')
-    parser.add_argument('--arch', type=str, default='mlp')
+    parser.add_argument('--model', type=str, default='mlp')
     parser.add_argument('--pretrained', type=bool, default=False)
     parser.add_argument('--weight_decay', type=float, default=1e-4)
     parser.add_argument("--percent", help="percentage of conflict", default= "0.5pct", type=str)
+    parser.add_argument('--logs', type=str, default='logs/debian/')
+    # parser.add_argument('--ckpt_dir', type=str, default='exp/cmnist')
     return parser
 
 
@@ -35,7 +38,7 @@ def parse_and_check(parser, required_args=None):
         for a in required_args:
             assert getattr(args, a, None) is not None, f'{a} is required.'
 
-    if getattr(args, 'ckpt_dir', None) is not None:
-        assert os.path.isdir(args.ckpt_dir)
+    if getattr(args, 'logs', None) is not None:
+        assert os.path.isdir(args.logs)
 
     return args

@@ -9,6 +9,7 @@ from .celeba import CelebA, attr_names as celeba_attr_names
 from .places import Places365
 from .lsun import LSUN
 from .bar import BAR
+from . import cmnist
 
 
 def get_train_val(dataset_name, args, train_transform, val_transform):

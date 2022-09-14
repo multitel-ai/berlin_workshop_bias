@@ -24,7 +24,7 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     from torch.utils.tensorboard import SummaryWriter
 
-
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from models.models import get_model, GeneralizedCELoss
 from .utils import MultiDimAverageMeter, EMA
 
@@ -58,13 +58,14 @@ def train(
     main_batch_size,
     main_learning_rate,
     main_weight_decay,
-    percent
+    percent,
+    num_workers
 ):
 
-    
+
     device = torch.device(device)
     start_time = datetime.now()
-    
+
     writer = SummaryWriter(os.path.join(log_dir, "summary", main_tag))
 
     print(dataset_tag)
@@ -82,10 +83,10 @@ def train(
         root=data_dir,
         dataset_split="valid",
         #transform_split="valid",
-        percent= percent                             
+        percent= percent
     )
 
-    '''Getting the number of classes and 
+    '''Getting the number of classes and
 
     domain of biaises (just for evaluation since the method does not assume and existing bias)
     '''
@@ -97,50 +98,50 @@ def train(
 
     attr_dims = []
     attr_dims.append(torch.max(train_target_attr).item() + 1)
-    # num_classes = attr_dims[0] 
-    
+    # num_classes = attr_dims[0]
+
     #IdxDataset just add the first element of idx before x
     train_dataset = IdxDataset(train_dataset)
-    valid_dataset = IdxDataset(valid_dataset)  
+    valid_dataset = IdxDataset(valid_dataset)
 
-    # make loader    
+    # make loader
     train_loader = DataLoader(
         train_dataset,
         batch_size=main_batch_size,
         shuffle=True,
-        num_workers=8,
+        num_workers=num_workers,
         pin_memory=True,
     )
 
     valid_loader = DataLoader(
         valid_dataset,
-        batch_size=256,
+        batch_size=main_batch_size,
         shuffle=False,
-        num_workers=8,
+        num_workers=num_workers,
         pin_memory=True,
     )
-    
+
     # define model and optimizer
     model_b = get_model(model_tag, attr_dims[0]).to(device)
     model_d = get_model(model_tag, attr_dims[0]).to(device)
-    
+
     optimizer_b = torch.optim.Adam(
             model_b.parameters(),
             lr=main_learning_rate,
             weight_decay=main_weight_decay,
         )
-    
+
     optimizer_d = torch.optim.Adam(
             model_d.parameters(),
             lr=main_learning_rate,
             weight_decay=main_weight_decay,
         )
 
-    
+
     # define loss
     criterion = nn.CrossEntropyLoss(reduction='none')
     bias_criterion = GeneralizedCELoss()
-    
+
     sample_loss_ema_b = EMA(torch.LongTensor(train_target_attr), alpha=0.7)
     sample_loss_ema_d = EMA(torch.LongTensor(train_target_attr), alpha=0.7)
 
@@ -172,12 +173,12 @@ def train(
     # jointly training biased/de-biased model
     valid_attrwise_accs_list = []
     num_updated = 0
-    
+
     for step in tqdm(range(main_num_steps)):
-        
+
         # train main model
         try:
-            
+
             index, data, attr, data_path = next(train_iter)
         except:
             train_iter = iter(train_loader)
@@ -187,51 +188,51 @@ def train(
         attr = attr.to(device)
         label = attr[:, target_attr_idx]
         bias_label = attr[:, bias_attr_idx]
-        
+
         logit_b = model_b(data)
         if np.isnan(logit_b.mean().item()):
             print(logit_b)
             raise NameError('logit_b')
         logit_d = model_d(data)
-        
+
         loss_b = criterion(logit_b, label).cpu().detach()
         loss_d = criterion(logit_d, label).cpu().detach()
-                
+
         if np.isnan(loss_b.mean().item()):
             raise NameError('loss_b')
         if np.isnan(loss_d.mean().item()):
             raise NameError('loss_d')
-        
+
         loss_per_sample_b = loss_b
         loss_per_sample_d = loss_d
-        
+
         # EMA sample loss
         sample_loss_ema_b.update(loss_b, index)
         sample_loss_ema_d.update(loss_d, index)
-        
+
         # class-wise normalize
         loss_b = sample_loss_ema_b.parameter[index].clone().detach()
         loss_d = sample_loss_ema_d.parameter[index].clone().detach()
-        
+
         if np.isnan(loss_b.mean().item()):
             raise NameError('loss_b_ema')
         if np.isnan(loss_d.mean().item()):
             raise NameError('loss_d_ema')
-        
+
         label_cpu = label.cpu()
-        
+
         for c in range(num_classes):
             class_index = np.where(label_cpu == c)[0]
             max_loss_b = sample_loss_ema_b.max_loss(c)
             max_loss_d = sample_loss_ema_d.max_loss(c)
             loss_b[class_index] /= max_loss_b
             loss_d[class_index] /= max_loss_d
-            
+
         # re-weighting based on loss value / generalized CE for biased model
         loss_weight = loss_b / (loss_b + loss_d + 1e-8)
         if np.isnan(loss_weight.mean().item()):
             raise NameError('loss_weight')
-            
+
         loss_b_update = bias_criterion(logit_b, label)
 
         if np.isnan(loss_b_update.mean().item()):
@@ -240,7 +241,7 @@ def train(
         if np.isnan(loss_d_update.mean().item()):
             raise NameError('loss_d_update')
         loss = loss_b_update.mean() + loss_d_update.mean()
-        
+
         num_updated += loss_weight.mean().item() * data.size(0)
 
         optimizer_b.zero_grad()
@@ -248,10 +249,10 @@ def train(
         loss.backward()
         optimizer_b.step()
         optimizer_d.step()
-        
+
         main_log_freq = 10
         if step % main_log_freq == 0:
-        
+
             writer.add_scalar("loss/b_train", loss_per_sample_b.mean(), step)
             writer.add_scalar("loss/d_train", loss_per_sample_d.mean(), step)
 
@@ -259,7 +260,7 @@ def train(
 
             aligned_mask = (label == bias_attr)
             skewed_mask = (label != bias_attr)
-            
+
             writer.add_scalar('loss_variance/b_ema', sample_loss_ema_b.parameter.var(), step)
             writer.add_scalar('loss_std/b_ema', sample_loss_ema_b.parameter.std(), step)
             writer.add_scalar('loss_variance/d_ema', sample_loss_ema_d.parameter.var(), step)
@@ -285,7 +286,7 @@ def train(
             writer.add_scalar("acc/d_valid", valid_accs_d, step)
 
             eye_tsr = torch.eye(attr_dims[0]).long()
-            
+
             # writer.add_scalar(
             #     "acc/b_valid_aligned",
             #     valid_attrwise_accs_b[eye_tsr == 1].mean(),
@@ -306,7 +307,7 @@ def train(
             #     valid_attrwise_accs_d[eye_tsr == 0].mean(),
             #     step,
             # )
-            
+
             num_updated_avg = num_updated / main_batch_size / main_valid_freq
             writer.add_scalar("num_updated/all", num_updated_avg, step)
             num_updated = 0
@@ -318,10 +319,9 @@ def train(
     with open(result_path, "wb") as f:
         torch.save({"valid/attrwise_accs": valid_attrwise_accs_list}, f)
     state_dict = {
-        'steps': step, 
-        'state_dict': model_d.state_dict(), 
-        'optimizer': optimizer_d.state_dict(), 
+        'steps': step,
+        'state_dict': model_d.state_dict(),
+        'optimizer': optimizer_d.state_dict(),
     }
     with open(model_path, "wb") as f:
         torch.save(state_dict, f)
-    

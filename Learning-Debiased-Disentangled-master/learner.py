@@ -16,6 +16,7 @@ path = os.getcwd()
 sys.path.append(os.path.abspath(os.path.join(path, os.pardir)))
 
 from data.utils import get_dataset, IdxDataset
+sys.path.append(os.path.dirname(__file__))
 from module.loss import GeneralizedCELoss
 from module.util import get_model
 from util import EMA
@@ -54,15 +55,15 @@ class Learner(object):
 
         print(f'model: {self.model} || dataset: {args.dataset}')
         print(f'working with experiment: {args.exp}...')
-        self.log_dir = os.makedirs(os.path.join(args.log_dir, args.dataset, args.exp), exist_ok=True)
+        self.log_dir = os.makedirs(os.path.join(args.logs, args.mitigation, args.dataset, args.exp), exist_ok=True)
         self.device = torch.device(args.device)
         self.args = args
 
         print(self.args)
 
         # logging directories
-        self.log_dir = os.path.join(args.log_dir, args.dataset, args.exp)
-        self.summary_dir =  os.path.join(args.log_dir, args.dataset, "summary", args.exp)
+        self.log_dir = os.path.join(args.logs, args.dataset, args.exp)
+        self.summary_dir =  os.path.join(args.logs, args.dataset, "summary", args.exp)
         self.summary_gradient_dir = os.path.join(self.log_dir, "gradient")
         self.result_dir = os.path.join(self.log_dir, "result")
         os.makedirs(self.summary_dir, exist_ok=True)

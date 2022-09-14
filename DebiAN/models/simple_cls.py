@@ -27,7 +27,7 @@ class MLP(nn.Module):
 
 
 def get_simple_classifier(arch, num_class=10, return_feat=False):
-    if arch == 'mlp':
+    if arch == 'MLP':
         model = MLP(num_class, return_feat=return_feat)
     else:
         raise NotImplementedError

@@ -3,7 +3,8 @@ import torch
 
 import sys
 path = os.getcwd()
-sys.path.append(path)
+# sys.path.append(path)
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -27,11 +28,11 @@ class Trainer(BaseTrainer):
                                               persistent_workers=args.num_workers > 0)
 
     def _setup_models(self):
-        if self.args.arch=='mlp':
+        if self.args.model=='MLP':
             self.bias_discover_net = get_simple_classifier(
-            arch=self.args.arch).to(self.device)
+            arch=self.args.model).to(self.device)
             self.classifier = get_simple_classifier(
-            arch=self.args.arch).to(self.device)
+            arch=self.args.model).to(self.device)
         else:
             self.bias_discover_net = get_resnet18_classifier(
                 num_classes=self.num_classes,pretrained=self.args.pretrained).to(self.device)
@@ -44,19 +45,19 @@ class Trainer(BaseTrainer):
 
     def _setup_optimizers(self):
         self.optimizer_bias_discover_net = torch.optim.Adam(
-            self.bias_discover_net.parameters(), args.lr)
+            self.bias_discover_net.parameters(), self.args.lr)
         self.optimizer = torch.optim.Adam(
-            self.classifier.parameters(), args.lr)
+            self.classifier.parameters(), self.args.lr)
 
     def _setup_method_name_and_default_name(self):
-        args.method_name = "debian"
+        self.args.method_name = "debian"
         self.default_name = (
             "debian_bs_{}_wd_{:.0E}_lr_{:.0E}_{}_{}".format(
-                args.batch_size,
-                args.weight_decay,
-                args.lr,
-                args.dset_name,
-                args.percent
+                self.args.batch_size,
+                self.args.weight_decay,
+                self.args.lr,
+                self.args.dataset,
+                self.args.percent
             )
         )
 
@@ -220,9 +221,9 @@ class Trainer(BaseTrainer):
             'epoch': epoch,
             'optimizer': self.optimizer.state_dict()
         }
-        best_val_acc_ckpt_fpath = os.path.join(self.ckpt_dir, f'{name}.pth')
+        best_val_acc_ckpt_fpath = os.path.join(self.logs, f'{name}.pth')
         best_val_acc_bias_discover_net_ckpt_fpath = os.path.join(
-            self.ckpt_dir, f'bias_discover_net_{name}.pth')
+            self.logs, f'bias_discover_net_{name}.pth')
 
         torch.save(bias_discover_net_state,
                    best_val_acc_bias_discover_net_ckpt_fpath)
@@ -231,8 +232,6 @@ class Trainer(BaseTrainer):
 
 if __name__ == '__main__':
     parser = get_parser()
-    parser.add_argument('--ckpt_dir', type=str,
-                        default='exp/cmnist')
     args = parse_and_check(parser)
     trainer = Trainer(args)
     trainer.run()
