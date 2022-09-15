@@ -12,6 +12,6 @@ services:
       - 8888:8888
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-      - PYTHONPATH=/:/berlin_workshop_bias/DebiAN
+      - PYTHONPATH=/:/berlin_workshop_bias/:/berlin_workshop_bias/DebiAN
     runtime: nvidia
     entrypoint: jupyter notebook --port=8888 --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.password='sha1:dc3069f3f0f6:76fb024e41e73de38fca44a1c9819f995c061cfa'
