@@ -68,6 +68,13 @@ def train(
         #transform_split="valid",
         percent= percent                             
     )
+    test_dataset, num_classes = get_dataset(
+        dataset_tag,
+        root=data_dir,
+        dataset_split="test",
+        #transform_split="valid",
+        percent= percent                             
+    )
 
     '''Getting the number of classes and 
 
@@ -101,6 +108,15 @@ def train(
         num_workers=8,
         pin_memory=True,
     )
+
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=256,
+        shuffle=False,
+        num_workers=8,
+        pin_memory=True,
+    )
+
     
     # define model and optimizer
     model = get_model(model_tag, attr_dims[0]).to(device)
@@ -157,6 +173,9 @@ def train(
 
     valid_attrwise_accs_list = []
 
+    test_attrwise_accs_list = []
+
+
     for step in tqdm(range(main_num_steps)):
         try:
             data, attr, path_data = next(train_iter)
@@ -199,6 +218,13 @@ def train(
             valid_attrwise_accs_list.append(valid_attrwise_accs)
             valid_accs = torch.mean(valid_attrwise_accs)
             writer.add_scalar("acc/valid", valid_accs, step)
+
+
+            test_attrwise_accs_b = evaluate(model, test_loader)
+            test_attrwise_accs_list.append(test_attrwise_accs_b)
+            test_accs_b = torch.mean(test_attrwise_accs_b)
+            writer.add_scalar("acc/b_test", test_accs_b, step)
+
             # eye_tsr = torch.eye(num_classes)
             # writer.add_scalar(
             #     "acc/valid_aligned",
@@ -210,6 +236,12 @@ def train(
             #     valid_attrwise_accs[eye_tsr == 0.0].mean(),
             #     step
             # )
+    
+    test_attrwise_accs_d = evaluate(model, test_loader)
+    val_attrwise_accs_d = evaluate(model, valid_loader)
+
+    file_path = f"{main_tag}_{dataset_tag}_{model_tag}_{percent}.csv"
+    pd.DataFrame({"acc_val":[valid_attrwise_accs_d], "acc_test":[test_attrwise_accs_d]}).to_csv(file_path)
 
     os.makedirs(os.path.join(log_dir, "result", main_tag), exist_ok=True)
     result_path = os.path.join(log_dir, "result", main_tag, "result.th")

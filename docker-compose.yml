@@ -7,11 +7,11 @@ services:
       dockerfile: dockerfile
     shm_size: 16gb
     volumes:
-      - .:/App
+      - .:/berlin_workshop_bias
     ports:
       - 8888:8888
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-      - PYTHONPATH=/App:/App/DebiAN
+      - PYTHONPATH=/:/berlin_workshop_bias/DebiAN
     runtime: nvidia
     entrypoint: jupyter notebook --port=8888 --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.password='sha1:dc3069f3f0f6:76fb024e41e73de38fca44a1c9819f995c061cfa'

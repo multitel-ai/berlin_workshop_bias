@@ -9,5 +9,6 @@ RUN echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN pip install jupyter
 RUN pip install captum
 RUN pip install pipreqs
+RUN pip install pandas
 USER user
-WORKDIR /App 
+WORKDIR /berlin_workshop_bias

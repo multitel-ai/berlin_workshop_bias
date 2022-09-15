@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Learning Debiased Representation via Disentangled Feature Augmentation (NeurIPS 21 Oral)')
 
     # training
-    parser.add_argument("--batch_size", help="batch_size", default=32, type=int)
+    parser.add_argument("--batch_size", help="batch_size", default=256, type=int)
     parser.add_argument("--lr",help='learning rate',default=1e-3, type=float)
     parser.add_argument("--weight_decay",help='weight_decay',default=0.0, type=float)
     parser.add_argument("--momentum",help='momentum',default=0.9, type=float)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         dataset_tag = args.dataset,
         model_tag = args.model,
         data_dir = "../data",
-        log_dir = "./logs_classic",
+        log_dir = f"./logs_classic_{args.percent}",
         device = args.device,
         target_attr_idx = args.target_attr_idx,
         bias_attr_idx = args.bias_attr_idx,
@@ -70,11 +70,11 @@ if __name__ == '__main__':
 
     elif args.train_lff:
         learner.train(
-        main_tag = "lff",
+        main_tag = 'lff',
         dataset_tag = args.dataset,
         model_tag = args.model,
         data_dir = "../data",
-        log_dir = "./logs",
+        log_dir = f"./logs_{args.percent}",
         device = args.device,
         target_attr_idx = args.target_attr_idx,
         bias_attr_idx = args.bias_attr_idx,
