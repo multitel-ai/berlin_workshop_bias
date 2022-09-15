@@ -1,0 +1,520 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Title: final_corr_matrix_rank_aggreg_holm_corr_robustness.eps
+%%Creator: Matplotlib v3.5.1, https://matplotlib.org/
+%%CreationDate: Fri Mar  4 10:24:12 2022
+%%Orientation: portrait
+%%BoundingBox: 233 337 379 455
+%%HiResBoundingBox: 233.507812 337.959687 378.492188 454.040312
+%%EndComments
+%%BeginProlog
+/mpldict 12 dict def
+mpldict begin
+/_d { bind def } bind def
+/m { moveto } _d
+/l { lineto } _d
+/r { rlineto } _d
+/c { curveto } _d
+/cl { closepath } _d
+/ce { closepath eofill } _d
+/box {
+      m
+      1 index 0 r
+      0 exch r
+      neg 0 r
+      cl
+    } _d
+/clipbox {
+      box
+      clip
+      newpath
+    } _d
+/sc { setcachedevice } _d
+%!PS-Adobe-3.0 Resource-Font
+%%Creator: Converted from TrueType to Type 3 by Matplotlib.
+10 dict begin
+/FontName /DejaVuSans def
+/PaintType 0 def
+/FontMatrix [0.00048828125 0 0 0.00048828125 0 0] def
+/FontBBox [-2090 -948 3673 2524] def
+/FontType 3 def
+/Encoding [/A /L /M /period /zero /one /nine] def
+/CharStrings 8 dict dup begin
+/.notdef 0 def
+/A{1401 0 16 0 1384 1493 sc
+700 1294 m
+426 551 l
+975 551 l
+700 1294 l
+
+586 1493 m
+815 1493 l
+1384 0 l
+1174 0 l
+1038 383 l
+365 383 l
+229 0 l
+16 0 l
+586 1493 l
+
+ce} _d
+/L{1141 0 201 0 1130 1493 sc
+201 1493 m
+403 1493 l
+403 170 l
+1130 170 l
+1130 0 l
+201 0 l
+201 1493 l
+
+ce} _d
+/M{1767 0 201 0 1567 1493 sc
+201 1493 m
+502 1493 l
+883 477 l
+1266 1493 l
+1567 1493 l
+1567 0 l
+1370 0 l
+1370 1311 l
+985 287 l
+782 287 l
+397 1311 l
+397 0 l
+201 0 l
+201 1493 l
+
+ce} _d
+/period{651 0 219 0 430 254 sc
+219 254 m
+430 254 l
+430 0 l
+219 0 l
+219 254 l
+
+ce} _d
+/zero{1303 0 135 -29 1167 1520 sc
+651 1360 m
+547 1360 469 1309 416 1206 c
+364 1104 338 950 338 745 c
+338 540 364 387 416 284 c
+469 182 547 131 651 131 c
+756 131 834 182 886 284 c
+939 387 965 540 965 745 c
+965 950 939 1104 886 1206 c
+834 1309 756 1360 651 1360 c
+
+651 1520 m
+818 1520 946 1454 1034 1321 c
+1123 1189 1167 997 1167 745 c
+1167 494 1123 302 1034 169 c
+946 37 818 -29 651 -29 c
+484 -29 356 37 267 169 c
+179 302 135 494 135 745 c
+135 997 179 1189 267 1321 c
+356 1454 484 1520 651 1520 c
+
+ce} _d
+/one{1303 0 225 0 1114 1493 sc
+254 170 m
+584 170 l
+584 1309 l
+225 1237 l
+225 1421 l
+582 1493 l
+784 1493 l
+784 170 l
+1114 170 l
+1114 0 l
+254 0 l
+254 170 l
+
+ce} _d
+/nine{1303 0 129 -29 1159 1520 sc
+225 31 m
+225 215 l
+276 191 327 173 379 160 c
+431 147 482 141 532 141 c
+665 141 767 186 837 275 c
+908 365 948 501 958 684 c
+919 627 870 583 811 552 c
+752 521 686 506 614 506 c
+465 506 346 551 259 641 c
+172 732 129 855 129 1012 c
+129 1165 174 1288 265 1381 c
+356 1474 476 1520 627 1520 c
+800 1520 931 1454 1022 1321 c
+1113 1189 1159 997 1159 745 c
+1159 510 1103 322 991 181 c
+880 41 730 -29 541 -29 c
+490 -29 439 -24 387 -14 c
+335 -4 281 11 225 31 c
+
+627 664 m
+718 664 789 695 842 757 c
+895 819 922 904 922 1012 c
+922 1119 895 1204 842 1266 c
+789 1329 718 1360 627 1360 c
+536 1360 464 1329 411 1266 c
+358 1204 332 1119 332 1012 c
+332 904 358 819 411 757 c
+464 695 536 664 627 664 c
+
+ce} _d
+end readonly def
+
+/BuildGlyph {
+ exch begin
+ CharStrings exch
+ 2 copy known not {pop /.notdef} if
+ true 3 1 roll get exec
+ end
+} _d
+
+/BuildChar {
+ 1 index /Encoding get exch get
+ 1 index /BuildGlyph get exec
+} _d
+
+FontName currentdict end definefont pop
+%!PS-Adobe-3.0 Resource-Font
+%%Creator: Converted from TrueType to Type 3 by Matplotlib.
+10 dict begin
+/FontName /DejaVuSans-BoldOblique def
+/PaintType 0 def
+/FontMatrix [0.00048828125 0 0 0.00048828125 0 0] def
+/FontBBox [-2185 -789 4093 2295] def
+/FontType 3 def
+/Encoding [/one] def
+/CharStrings 2 dict dup begin
+/.notdef 0 def
+/one{1425 0 88 0 1184 1493 sc
+141 266 m
+481 266 l
+668 1231 l
+305 1159 l
+356 1421 l
+717 1493 l
+1083 1493 l
+846 266 l
+1184 266 l
+1133 0 l
+88 0 l
+141 266 l
+
+ce} _d
+end readonly def
+
+/BuildGlyph {
+ exch begin
+ CharStrings exch
+ 2 copy known not {pop /.notdef} if
+ true 3 1 roll get exec
+ end
+} _d
+
+/BuildChar {
+ 1 index /Encoding get exch get
+ 1 index /BuildGlyph get exec
+} _d
+
+FontName currentdict end definefont pop
+end
+%%EndProlog
+mpldict begin
+233.508 337.96 translate
+144.984 116.081 0 0 clipbox
+gsave
+0 0 m
+144.984375 0 l
+144.984375 116.080625 l
+0 116.080625 l
+cl
+1.000 setgray
+fill
+grestore
+gsave
+26.184375 27.340625 m
+137.784375 27.340625 l
+137.784375 108.880625 l
+26.184375 108.880625 l
+cl
+0.918 0.918 0.949 setrgbcolor
+fill
+grestore
+0.150 setgray
+/DejaVuSans 11.000 selectfont
+gsave
+
+41.018750 9.481250 translate
+0.000000 rotate
+0.000000 0 m /A glyphshow
+grestore
+gsave
+
+78.921875 9.481250 translate
+0.000000 rotate
+0.000000 0 m /L glyphshow
+grestore
+gsave
+
+114.442187 9.481250 translate
+0.000000 rotate
+0.000000 0 m /M glyphshow
+grestore
+gsave
+
+9.153125 92.251563 translate
+0.000000 rotate
+0.000000 0 m /A glyphshow
+grestore
+gsave
+
+10.559375 65.071563 translate
+0.000000 rotate
+0.000000 0 m /L glyphshow
+grestore
+gsave
+
+7.200000 37.891563 translate
+0.000000 rotate
+0.000000 0 m /M glyphshow
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+26.184375 108.880625 m
+63.384375 108.880625 l
+63.384375 81.700625 l
+26.184375 81.700625 l
+26.184375 108.880625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+63.384375 108.880625 m
+100.584375 108.880625 l
+100.584375 81.700625 l
+63.384375 81.700625 l
+63.384375 108.880625 l
+0.120 0.607 0.540 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+100.584375 108.880625 m
+137.784375 108.880625 l
+137.784375 81.700625 l
+100.584375 81.700625 l
+100.584375 108.880625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+26.184375 81.700625 m
+63.384375 81.700625 l
+63.384375 54.520625 l
+26.184375 54.520625 l
+26.184375 81.700625 l
+0.120 0.607 0.540 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+63.384375 81.700625 m
+100.584375 81.700625 l
+100.584375 54.520625 l
+63.384375 54.520625 l
+63.384375 81.700625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+100.584375 81.700625 m
+137.784375 81.700625 l
+137.784375 54.520625 l
+100.584375 54.520625 l
+100.584375 81.700625 l
+0.120 0.607 0.540 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+26.184375 54.520625 m
+63.384375 54.520625 l
+63.384375 27.340625 l
+26.184375 27.340625 l
+26.184375 54.520625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+63.384375 54.520625 m
+100.584375 54.520625 l
+100.584375 27.340625 l
+63.384375 27.340625 l
+63.384375 54.520625 l
+0.120 0.607 0.540 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+100.584375 54.520625 m
+137.784375 54.520625 l
+137.784375 27.340625 l
+100.584375 27.340625 l
+100.584375 54.520625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+26.184375 108.880625 m
+63.384375 108.880625 l
+63.384375 81.700625 l
+26.184375 81.700625 l
+26.184375 108.880625 l
+0.993 0.906 0.144 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+63.384375 108.880625 m
+100.584375 108.880625 l
+100.584375 81.700625 l
+63.384375 81.700625 l
+63.384375 108.880625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+100.584375 108.880625 m
+137.784375 108.880625 l
+137.784375 81.700625 l
+100.584375 81.700625 l
+100.584375 108.880625 l
+0.993 0.906 0.144 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+26.184375 81.700625 m
+63.384375 81.700625 l
+63.384375 54.520625 l
+26.184375 54.520625 l
+26.184375 81.700625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+63.384375 81.700625 m
+100.584375 81.700625 l
+100.584375 54.520625 l
+63.384375 54.520625 l
+63.384375 81.700625 l
+0.993 0.906 0.144 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+100.584375 81.700625 m
+137.784375 81.700625 l
+137.784375 54.520625 l
+100.584375 54.520625 l
+100.584375 81.700625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+26.184375 54.520625 m
+63.384375 54.520625 l
+63.384375 27.340625 l
+26.184375 27.340625 l
+26.184375 54.520625 l
+0.993 0.906 0.144 setrgbcolor
+fill
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+63.384375 54.520625 m
+100.584375 54.520625 l
+100.584375 27.340625 l
+63.384375 27.340625 l
+63.384375 54.520625 l
+grestore
+gsave
+111.6 81.54 26.184 27.341 clipbox
+100.584375 54.520625 m
+137.784375 54.520625 l
+137.784375 27.340625 l
+100.584375 27.340625 l
+100.584375 54.520625 l
+0.993 0.906 0.144 setrgbcolor
+fill
+grestore
+1.000 setgray
+/DejaVuSans 12.000 selectfont
+gsave
+
+64.796875 91.978125 translate
+0.000000 rotate
+0.000000 0 m /zero glyphshow
+7.634766 0 m /period glyphshow
+11.449219 0 m /zero glyphshow
+19.083984 0 m /nine glyphshow
+26.718750 0 m /one glyphshow
+grestore
+gsave
+
+27.596875 64.798125 translate
+0.000000 rotate
+0.000000 0 m /zero glyphshow
+7.634766 0 m /period glyphshow
+11.449219 0 m /zero glyphshow
+19.083984 0 m /nine glyphshow
+26.718750 0 m /one glyphshow
+grestore
+gsave
+
+101.996875 64.798125 translate
+0.000000 rotate
+0.000000 0 m /zero glyphshow
+7.634766 0 m /period glyphshow
+11.449219 0 m /zero glyphshow
+19.083984 0 m /nine glyphshow
+26.718750 0 m /one glyphshow
+grestore
+gsave
+
+64.796875 37.618125 translate
+0.000000 rotate
+0.000000 0 m /zero glyphshow
+7.634766 0 m /period glyphshow
+11.449219 0 m /zero glyphshow
+19.083984 0 m /nine glyphshow
+26.718750 0 m /one glyphshow
+grestore
+0.150 setgray
+/DejaVuSans-BoldOblique 12.000 selectfont
+gsave
+
+40.612500 91.978125 translate
+0.000000 rotate
+0.000000 0 m /one glyphshow
+grestore
+gsave
+
+115.012500 91.978125 translate
+0.000000 rotate
+0.000000 0 m /one glyphshow
+grestore
+gsave
+
+77.812500 64.798125 translate
+0.000000 rotate
+0.000000 0 m /one glyphshow
+grestore
+gsave
+
+40.612500 37.618125 translate
+0.000000 rotate
+0.000000 0 m /one glyphshow
+grestore
+gsave
+
+115.012500 37.618125 translate
+0.000000 rotate
+0.000000 0 m /one glyphshow
+grestore
+
+end
+showpage

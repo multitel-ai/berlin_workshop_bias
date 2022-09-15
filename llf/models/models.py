@@ -31,10 +31,10 @@ class MLP(nn.Module):
             nn.ReLU(),
             nn.Linear(100, 100),
             nn.ReLU(),
-            nn.Linear(100, 16),
+            nn.Linear(100, 32),
             nn.ReLU()
         )
-        self.classifier = nn.Linear(16, num_classes)
+        self.classifier = nn.Linear(32, num_classes)
 
 
     def forward(self, x, mode=None, return_feat=False):

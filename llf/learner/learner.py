@@ -9,6 +9,7 @@ from tqdm import tqdm
 from datetime import datetime
 
 import numpy as np
+import pandas as pd
 
 import torch
 from torch.utils.data import DataLoader, RandomSampler, BatchSampler, WeightedRandomSampler
@@ -85,9 +86,15 @@ def train(
         #transform_split="valid",
         percent= percent
     )
+    test_dataset, num_classes = get_dataset(
+        dataset_tag,
+        root=data_dir,
+        dataset_split="test",
+        #transform_split="valid",
+        percent= percent                             
+    )
 
-    '''Getting the number of classes and
-
+    '''Getting the number of classes
     domain of biaises (just for evaluation since the method does not assume and existing bias)
     '''
 
@@ -102,7 +109,8 @@ def train(
 
     #IdxDataset just add the first element of idx before x
     train_dataset = IdxDataset(train_dataset)
-    valid_dataset = IdxDataset(valid_dataset)
+    valid_dataset = IdxDataset(valid_dataset)  
+    test_dataset = IdxDataset(test_dataset)  
 
     # make loader
     train_loader = DataLoader(
@@ -121,6 +129,14 @@ def train(
         pin_memory=True,
     )
 
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=256,
+        shuffle=False,
+        num_workers=8,
+        pin_memory=True,
+    )
+    
     # define model and optimizer
     model_b = get_model(model_tag, attr_dims[0]).to(device)
     model_d = get_model(model_tag, attr_dims[0]).to(device)
@@ -170,8 +186,39 @@ def train(
 
         return accs
 
+    # def evaluate_cond(model, data_loader):
+    #     model.eval()
+    #     acc_conf, acc_align = 0, 0
+    #     total_correct_conf, total_correct_align,  total_num_align, total_num_conf = 0, 0, 0, 0
+    #     #attrwise_acc_meter = MultiDimAverageMeter(attr_dims)
+    #     for index, data, attr, datapath in tqdm(data_loader, leave=False):
+    #         label = attr[:, target_attr_idx]
+    #         label_conf = label[label != attr[:,1-target_attr_idx]]
+    #         label_align = label[label == attr[:,1-target_attr_idx]]
+
+    #         label = attr[:, target_attr_idx]
+    #         data = data.to(device)
+    #         attr = attr.to(device)
+    #         label = label.to(device)
+    #         with torch.no_grad():
+    #             logit = model(data)
+    #             pred = logit.data.max(1, keepdim=True)[1].squeeze(1)
+    #             correct = (pred == label).long()
+    #             total_correct += correct.sum()
+    #             total_num += correct.shape[0]
+
+
+    #     accs = total_correct/float(total_num)
+
+    #     model.train()
+
+    #     return accs
+
     # jointly training biased/de-biased model
     valid_attrwise_accs_list = []
+
+    test_attrwise_accs_list = []
+
     num_updated = 0
 
     for step in tqdm(range(main_num_steps)):
@@ -287,6 +334,16 @@ def train(
 
             eye_tsr = torch.eye(attr_dims[0]).long()
 
+
+            test_attrwise_accs_b = evaluate(model_b, test_loader)
+            test_attrwise_accs_d = evaluate(model_d, test_loader)
+            test_attrwise_accs_list.append(test_attrwise_accs_d)
+            test_accs_b = torch.mean(test_attrwise_accs_b)
+            writer.add_scalar("acc/b_test", test_accs_b, step)
+            test_accs_d = torch.mean(test_attrwise_accs_d)
+            writer.add_scalar("acc/d_test", test_accs_d, step)
+            # eye_tsr = torch.eye(attr_dims[0]).long()
+            
             # writer.add_scalar(
             #     "acc/b_valid_aligned",
             #     valid_attrwise_accs_b[eye_tsr == 1].mean(),
@@ -311,6 +368,12 @@ def train(
             num_updated_avg = num_updated / main_batch_size / main_valid_freq
             writer.add_scalar("num_updated/all", num_updated_avg, step)
             num_updated = 0
+    
+    test_attrwise_accs_d = evaluate(model_d, test_loader)
+    val_attrwise_accs_d = evaluate(model_d, valid_loader)
+
+    file_path = f"{main_tag}_{dataset_tag}_{model_tag}_{percent}.csv"
+    pd.DataFrame({"acc_val":[valid_attrwise_accs_d.cpu().numpy()], "acc_test":[test_attrwise_accs_d.cpu().numpy()]}).to_csv(file_path)
 
     os.makedirs(os.path.join(log_dir, "result", main_tag), exist_ok=True)
     result_path = os.path.join(log_dir, "result", main_tag, "result.th")
